@@ -1,21 +1,47 @@
 package com.npsouza.helpdesk.domain;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.npsouza.helpdesk.domain.enums.Perfil;
 
-public abstract class Pessoa {
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+
+@Entity
+public abstract class Pessoa implements Serializable{
 	
+	//Serializable é usado para que seja criado uma sequencia de Bits das instâncias dessa classe, para que possam ser trafegados em rede 
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY) //Para o banco de dados gerar um Id diferente para cada objeto
 	protected Integer id;
 	protected String nome;
+	
+	@Column(unique = true) //Valor unico no banco
 	protected String cpf;
+	
+	@Column(unique = true)
 	protected String email;
 	protected String senha;
-	//Set não permite ter dois valores iguais dentro da lista
-	protected Set<Integer> perfis = new HashSet<>(); //Iniciando com valor HashSet para evitar a questão do ponteiro nulo nullpointerexception
+	
+	@ElementCollection(fetch = FetchType.EAGER) //Informando que é uma coleção e quando eu der um GET e buscar esse usuário no banco essa lista de perfis tera que vir imediatamente com esse usuário para evitar problemas
+	@CollectionTable(name = "Perfis")
+	protected Set<Integer> perfis = new HashSet<>(); //Set não permite ter dois valores iguais dentro da lista, iniciando com valor HashSet para evitar a questão do ponteiro nulo nullpointerexception
+	
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	protected LocalDate dataCriação = LocalDate.now();
 	
 	public Pessoa() {
