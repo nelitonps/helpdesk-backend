@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.npsouza.helpdesk.domain.Tecnico;
+import com.npsouza.helpdesk.domain.dtos.TecnicoDTO;
 import com.npsouza.helpdesk.repositories.TecnicoRepository;
 import com.npsouza.helpdesk.services.exceptions.ObjectnotFoundException;
 
@@ -21,7 +22,17 @@ public class TecnicoService {
 		return obj.orElseThrow(() -> new ObjectnotFoundException("Objeto não encontrado Id: " + id));
 	}
 	
-	public List<Tecnico> findAllService(){
+	public List<Tecnico> findAllTecService(){
 		return tecRepository.findAll();
+	}
+
+	public Tecnico createTecService(TecnicoDTO objDTO) {
+		
+		objDTO.setId(null); //Por segurança para ter certeza que o id vai vir nulo
+		
+		//Tem que ser salvo um tipo Tecnico. Não salvar um TcnicoDTO pois ele não é uma entidade e não deve ser salvo no banco de dados 
+		//Por isso foi adicionado um novo construtor do tipo de retorno TecnicoDTO na classe Tecnico para ser chamado aqui
+		Tecnico newObj = new Tecnico(objDTO);
+		return tecRepository.save(newObj);
 	}
 }

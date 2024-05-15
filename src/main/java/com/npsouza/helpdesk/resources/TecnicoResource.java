@@ -1,5 +1,6 @@
 package com.npsouza.helpdesk.resources;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.npsouza.helpdesk.domain.Tecnico;
 import com.npsouza.helpdesk.domain.dtos.TecnicoDTO;
@@ -32,8 +36,17 @@ public class TecnicoResource {
 	//Endpoint que fara a listagem de todos os técnicos do banco
 	@GetMapping
 	public ResponseEntity<List<TecnicoDTO>> findAll(){
-		List<Tecnico> list = tecService.findAllService();
+		List<Tecnico> list = tecService.findAllTecService();
 		List<TecnicoDTO> listDTO = list.stream().map(obj -> new TecnicoDTO(obj)).collect(Collectors.toList());
 		return ResponseEntity.ok().body(listDTO);
 	}
+	
+	//Endpoint que cria um novo técnico
+	@PostMapping
+	public ResponseEntity<TecnicoDTO> create(@RequestBody TecnicoDTO objDTO){
+		Tecnico newObj = tecService.createTecService(objDTO);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newObj.getId()).toUri();
+		return ResponseEntity.created(null).build();
+	}
+	
 }
