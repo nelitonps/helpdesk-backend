@@ -18,6 +18,8 @@ import com.npsouza.helpdesk.domain.Tecnico;
 import com.npsouza.helpdesk.domain.dtos.TecnicoDTO;
 import com.npsouza.helpdesk.services.TecnicoService;
 
+import jakarta.validation.Valid;
+
 @RestController //Camada de Recursos
 @RequestMapping(value = "/tecnicos") //Para adicionar o endpoint inicial para os servicos
 public class TecnicoResource {
@@ -43,7 +45,7 @@ public class TecnicoResource {
 	
 	//Endpoint que cria um novo técnico
 	@PostMapping
-	public ResponseEntity<TecnicoDTO> create(@RequestBody TecnicoDTO objDTO){
+	public ResponseEntity<TecnicoDTO> create(@Valid @RequestBody TecnicoDTO objDTO){ //@Valid é para validar os campos adicionados como notNull
 		Tecnico newObj = tecService.createTecService(objDTO);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newObj.getId()).toUri();
 		return ResponseEntity.created(null).build();

@@ -10,15 +10,21 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.npsouza.helpdesk.domain.Tecnico;
 import com.npsouza.helpdesk.domain.enums.Perfil;
 
+import jakarta.validation.constraints.NotNull;
+
 public class TecnicoDTO implements Serializable{
 	
 	//Serializable é usado para que seja criado uma sequencia de Bits das instâncias dessa classe, para que possam ser trafegados em rede 
 	private static final long serialVersionUID = 1L;
 	
 	protected Integer id;
+	@NotNull(message = "O campo NOME é obrigatório")
 	protected String nome;
+	@NotNull(message = "O campo CPF é obrigatório")
 	protected String cpf;
+	@NotNull(message = "O campo EMAIL é obrigatório")
 	protected String email;
+	@NotNull(message = "O campo SENHA é obrigatório")
 	protected String senha;
 	protected Set<Integer> perfis = new HashSet<>(); //Set não permite ter dois valores iguais dentro da lista, iniciando com valor HashSet para evitar a questão do ponteiro nulo nullpointerexception
 	
