@@ -45,13 +45,25 @@ public class TecnicoService {
 		return tecRepository.save(newObj);
 	}
 	
-	public Tecnico update(Integer id, @Valid TecnicoDTO objDTO) {
+	public Tecnico updateTecService(Integer id, @Valid TecnicoDTO objDTO) {
 		objDTO.setId(id);
 		Tecnico oldObj = tecFindById(id);
 		validaPorCpfeEmail(objDTO);
 		oldObj = new Tecnico(objDTO);
 		return tecRepository.save(oldObj);
 	}
+	
+	public void deleteTec(Integer id) {
+		Tecnico obj = tecFindById(id);
+		
+		if(obj.getChamado().size() > 0) {
+			throw new DataIntegrityViolationException("Tecnico possui ordens de servoço e não pode ser deletado!");
+		}
+		
+		tecRepository.deleteById(id);
+	}
+	
+	
 
 	private void validaPorCpfeEmail(TecnicoDTO objDTO) {
 		Optional<Pessoa> obj = pessoaRepository.findByCpf(objDTO.getCpf());
@@ -66,6 +78,9 @@ public class TecnicoService {
 		}
 		
 	}
+
+	
+	
 	
 	
 	
