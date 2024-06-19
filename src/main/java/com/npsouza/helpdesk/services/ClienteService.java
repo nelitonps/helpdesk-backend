@@ -24,7 +24,7 @@ public class ClienteService {
 	@Autowired
 	private PessoaRepository pessoaRepository;
 	
-	public Cliente tecFindById(Integer id) {
+	public Cliente cliFindById(Integer id) {
 		Optional<Cliente> obj = cliRepository.findById(id);
 		return obj.orElseThrow(() -> new ObjectnotFoundException("Objeto não encontrado Id: " + id));
 	}
@@ -47,14 +47,14 @@ public class ClienteService {
 	
 	public Cliente updateTecService(Integer id, @Valid ClienteDTO objDTO) {
 		objDTO.setId(id);
-		Cliente oldObj = tecFindById(id);
+		Cliente oldObj = cliFindById(id);
 		validaPorCpfeEmail(objDTO);
 		oldObj = new Cliente(objDTO);
 		return cliRepository.save(oldObj);
 	}
 	
 	public void deleteTec(Integer id) {
-		Cliente obj = tecFindById(id);
+		Cliente obj = cliFindById(id);
 		
 		if(obj.getChamado().size() > 0) {
 			throw new DataIntegrityViolationException("Cliente possui ordens de servoço e não pode ser deletado!");

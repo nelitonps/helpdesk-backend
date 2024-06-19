@@ -33,7 +33,7 @@ public class ClienteResource {
 	
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<ClienteDTO> findById(@PathVariable Integer id){ //ResponseEntity é utilizado para representar, controlar toda resposta http
-		Cliente obj = this.tecService.tecFindById(id);
+		Cliente obj = this.tecService.cliFindById(id);
 		return ResponseEntity.ok().body(new ClienteDTO(obj));
 	}
 	
