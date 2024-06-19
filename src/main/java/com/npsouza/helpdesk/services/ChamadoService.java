@@ -1,5 +1,6 @@
 package com.npsouza.helpdesk.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,5 +19,9 @@ public class ChamadoService {
 	public Chamado findByIdChamadoService(Integer id) {
 		Optional<Chamado> obj = chamadoRepository.findById(id);
 		return obj.orElseThrow(() -> new ObjectnotFoundException("Objeto não encontrado!" + id));
+	}
+
+	public List<Chamado> findAllChamadoService() {
+		return chamadoRepository.findAll();
 	}
 }

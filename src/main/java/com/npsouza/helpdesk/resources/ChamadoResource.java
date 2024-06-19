@@ -1,5 +1,8 @@
 package com.npsouza.helpdesk.resources;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,4 +26,12 @@ public class ChamadoResource {
 		Chamado obj = chamadoService.findByIdChamadoService(id);
 		return ResponseEntity.ok().body(new ChamadoDTO(obj));
 	}
+	
+	@GetMapping
+	public ResponseEntity<List<ChamadoDTO>> findAllChamadoResource(){
+		List<Chamado> list = chamadoService.findAllChamadoService();
+		List<ChamadoDTO> listDTO = list.stream().map(obj -> new ChamadoDTO(obj)).collect(Collectors.toList()); //Converte a lista para DTO
+		return ResponseEntity.ok().body(listDTO);
+	}
+	
 }
