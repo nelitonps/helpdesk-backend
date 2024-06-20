@@ -3,6 +3,7 @@ package com.npsouza.helpdesk.services;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.npsouza.helpdesk.domain.Chamado;
@@ -13,6 +14,7 @@ import com.npsouza.helpdesk.domain.enums.Prioridade;
 import com.npsouza.helpdesk.domain.enums.Status;
 import com.npsouza.helpdesk.repositories.ChamadoRepository;
 import com.npsouza.helpdesk.repositories.ClienteRepository;
+import com.npsouza.helpdesk.repositories.PessoaRepository;
 import com.npsouza.helpdesk.repositories.TecnicoRepository;
 
 
@@ -26,19 +28,21 @@ public class DBService {
 		private ClienteRepository clienteRepository;
 		@Autowired
 		private ChamadoRepository chamadoRepository;
+		@Autowired
+		private BCryptPasswordEncoder encoder;
 
 	public void instanciaDB() {
 		
-		Tecnico tec1 = new Tecnico(null, "Pati Silveira", "12456488847", "Pati@gmail", "123");
+		Tecnico tec1 = new Tecnico(null, "Pati Silveira", "12456488847", "Pati@gmail", encoder.encode("123"));
 		tec1.addPerfil(Perfil.ADMIN);
-		Tecnico tec2 = new Tecnico(null, "Setreo Oliver", "12456487547", "Setro@gmail", "123");
+		Tecnico tec2 = new Tecnico(null, "Setreo Oliver", "12456487547", "Setro@gmail", encoder.encode("123"));
 		tec2.addPerfil(Perfil.ADMIN);
-		Tecnico tec3 = new Tecnico(null, "Mariana Colto", "12856487547", "Mariana@gmail", "123");
+		Tecnico tec3 = new Tecnico(null, "Mariana Colto", "12856487547", "Mariana@gmail", encoder.encode("123"));
 		tec3.addPerfil(Perfil.ADMIN);
 		
 		
 		
-		Cliente cli1 = new Cliente(null, "Julia Stylo", "12256456847", "juliateste@gmail", "123");
+		Cliente cli1 = new Cliente(null, "Julia Stylo", "12256456847", "juliateste@gmail", encoder.encode("123"));
 		
 		Chamado c1 = new Chamado(null, Prioridade.MEDIA, Status.ANDAMENTO, "Chamado 1", "Primeiro Chamado", tec1, cli1);
 		

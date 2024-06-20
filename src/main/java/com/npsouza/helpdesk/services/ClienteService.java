@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.npsouza.helpdesk.domain.Cliente;
@@ -23,6 +24,8 @@ public class ClienteService {
 	private ClienteRepository cliRepository;
 	@Autowired
 	private PessoaRepository pessoaRepository;
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 	
 	public Cliente cliFindById(Integer id) {
 		Optional<Cliente> obj = cliRepository.findById(id);
@@ -36,7 +39,7 @@ public class ClienteService {
 	public Cliente createTecService(ClienteDTO objDTO) {
 		
 		objDTO.setId(null); //Por segurança para ter certeza que o id vai vir nulo
-		
+		objDTO.setSenha(encoder.encode(objDTO.getSenha()));
 		validaPorCpfeEmail(objDTO);
 		
 		//Tem que ser salvo um tipo Cliente. Não salvar um TcnicoDTO pois ele não é uma entidade e não deve ser salvo no banco de dados 
