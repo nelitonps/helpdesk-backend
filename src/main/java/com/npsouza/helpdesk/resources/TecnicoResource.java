@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,6 +47,7 @@ public class TecnicoResource {
 	}
 	
 	//Endpoint que cria um novo técnico
+	@PreAuthorize("hasAnyRole('ADMIN')") //Para que qualquer um que tiver o perfil ADMIN pode acessar este endpoint CREATE (Usado atravé da notação EnableMethodSecurity adicionado na classe SecurityConfig)
 	@PostMapping
 	public ResponseEntity<TecnicoDTO> create(@Valid @RequestBody TecnicoDTO objDTO){ //@Valid é para validar os campos adicionados como notNull
 		Tecnico newObj = tecService.createTecService(objDTO);
@@ -54,6 +56,7 @@ public class TecnicoResource {
 	}
 	
 	//Endpoint para atualizar as informações de um técnico
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<TecnicoDTO> update(@PathVariable Integer id, @Valid @RequestBody TecnicoDTO objDTO){
 		Tecnico obj = tecService.updateTecService(id, objDTO);
@@ -61,6 +64,7 @@ public class TecnicoResource {
 	}
 	
 	//Endpoint para deletar um técnico por id
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<TecnicoDTO> delete(@PathVariable Integer id){
 		tecService.deleteTec(id);

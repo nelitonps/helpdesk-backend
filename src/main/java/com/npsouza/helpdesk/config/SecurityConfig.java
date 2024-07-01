@@ -5,11 +5,13 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+//import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,16 +22,19 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.npsouza.helpdesk.security.JWTAuthenticationFilter;
+import com.npsouza.helpdesk.security.JWTAuthorizationFilter;
 import com.npsouza.helpdesk.security.JWTUtil;
 
-//@EnableWebSecurity
+//
 //public class SecurityConfig extends WebSecurityConfigurerAdapter - desta forma não funciona mais
 
+//@EnableGlobalMethodSecurity(prePostEnabled = true) // esta deprecado no lugar esta sendo usado EnableMethodSecurity
+//@EnableMethodSecurity
 @Configuration
 public class SecurityConfig{
 	
-	@Autowired
-	private Environment env;
+	//@Autowired
+	//private Environment env;
 	@Autowired
 	private JWTUtil jwtUtil;
 	@Autowired
@@ -37,34 +42,49 @@ public class SecurityConfig{
 	
 
 	//Para testar na linha 46
-	@Autowired
-	private AuthenticationConfiguration authenticationConfiguration;
+	//@Autowired
+	//private AuthenticationConfiguration authenticationConfiguration;
 	
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    	if(Arrays.asList(env.getActiveProfiles()).contains("test")) {
-    		http.headers().frameOptions().disable();
-    	}
-    	
+    	AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
+        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
         http
-            .csrf().disable()
-            
-            //Testando este metodo abaixo desta forma para ver se funciona
-            .addFilter(new JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil))
-            
-            .authorizeRequests(authorizeRequests ->
-                authorizeRequests
-                    .requestMatchers("/h2-console/**").permitAll()
-                    .anyRequest().authenticated()
-            )
-            .httpBasic(withDefaults -> {})
-            .sessionManagement(sessionManagement -> sessionManagement
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .cors(withDefaults -> {});
-
+                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authz -> authz
+                        .anyRequest().authenticated()
+                )
+                .addFilter(new JWTAuthenticationFilter(authenticationManager, jwtUtil))
+                .addFilter(new JWTAuthorizationFilter(authenticationManager, jwtUtil, userDetailsService))
+                .authenticationManager(authenticationManager)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
+//    	if(Arrays.asList(env.getActiveProfiles()).contains("test")) {
+//    		http.headers().frameOptions().disable();
+//    	}
+//    	
+//        http
+//            .csrf().disable()
+//            
+//            //Testando este metodo abaixo desta forma para ver se funciona
+//            .addFilter(new JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil))
+//            
+//            .authorizeRequests(authorizeRequests ->
+//                authorizeRequests
+//                    .requestMatchers("/h2-console/**").permitAll()
+//                    .anyRequest().authenticated()
+//            )
+//            .httpBasic(withDefaults -> {})
+//            .sessionManagement(sessionManagement -> sessionManagement
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//            )
+//            .cors(withDefaults -> {});
+//
+//        return http.build();
     }
     
     protected void configure(AuthenticationManagerBuilder auth) throws Exception{
@@ -79,7 +99,7 @@ public class SecurityConfig{
     }
     
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
     	CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
     	configuration.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "OPTIONS"));
     	UrlBasedCorsConfigurationSource urlSource = new UrlBasedCorsConfigurationSource();
